@@ -3,6 +3,8 @@
 // Built for DevEloped Web Co. (Albuquerque, NM)
 // ============================================================================
 
+import { ROUND2_RAW_LEADS } from './round2-leads.js';
+
 export const PIPELINE_STAGES = [
   { id: 'New Lead', label: 'New Lead', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.14)' },
   { id: 'Called', label: 'Called', color: '#818CF8', bg: 'rgba(129, 140, 248, 0.14)' },
@@ -79,9 +81,58 @@ export const CATEGORY_CONFIG = {
     avgPackage: 1200,
     icon: 'wrench'
   },
+  'plumber': {
+    label: 'Plumbing',
+    demandPts: 15,
+    bestTime: 'Call 10:00 AM–2:00 PM (after morning dispatch)',
+    avgPackage: 1250,
+    icon: 'wrench'
+  },
+  'hvac': {
+    label: 'HVAC & Mechanical',
+    demandPts: 15,
+    bestTime: 'Call 10:00 AM–2:00 PM (after morning service dispatch)',
+    avgPackage: 1350,
+    icon: 'wrench'
+  },
+  'electrician': {
+    label: 'Electrical Contractor',
+    demandPts: 15,
+    bestTime: 'Call 10:00 AM–2:00 PM (mid-day office window)',
+    avgPackage: 1250,
+    icon: 'wrench'
+  },
+  'roofer': {
+    label: 'Roofing Contractor',
+    demandPts: 15,
+    bestTime: 'Call 11:00 AM–3:00 PM (between site estimates)',
+    avgPackage: 1500,
+    icon: 'wrench'
+  },
+  'landscaping': {
+    label: 'Landscaping',
+    demandPts: 14,
+    bestTime: 'Call 1:00–4:00 PM (after morning crew routes)',
+    avgPackage: 1100,
+    icon: 'briefcase'
+  },
+  'house cleaning': {
+    label: 'Cleaning Service',
+    demandPts: 14,
+    bestTime: 'Call 11:00 AM–3:00 PM',
+    avgPackage: 900,
+    icon: 'sparkles'
+  },
+  'pet grooming': {
+    label: 'Pet Grooming',
+    demandPts: 14,
+    bestTime: 'Call Tue–Thu 11:00 AM–2:00 PM (after morning drop-offs)',
+    avgPackage: 850,
+    icon: 'heart'
+  },
   'other': {
     label: 'Local Business',
-    demandPts: 10,
+    demandPts: 12,
     bestTime: 'Call Tue–Thu 10:00–11:30 AM or 2:00–4:00 PM',
     avgPackage: 850,
     icon: 'briefcase'
@@ -95,12 +146,19 @@ export function getCategoryMeta(categoryRaw = '') {
     return CATEGORY_CONFIG['Mexican restaurant'];
   }
   if (lower.includes('truck')) return CATEGORY_CONFIG['food truck'];
-  if (lower.includes('baker') || lower.includes('panaderia') || lower.includes('pastry')) return CATEGORY_CONFIG['bakery'];
+  if (lower.includes('baker') || lower.includes('panaderia') || lower.includes('pastry') || lower.includes('sweet') || lower.includes('donut')) return CATEGORY_CONFIG['bakery'];
   if (lower.includes('barber') || lower.includes('hair') || lower.includes('fade')) return CATEGORY_CONFIG['barber shop'];
   if (lower.includes('nail')) return CATEGORY_CONFIG['nail salon'];
   if (lower.includes('beauty') || lower.includes('pmu') || lower.includes('lash') || lower.includes('spa') || lower.includes('salon')) return CATEGORY_CONFIG['beauty'];
   if (lower.includes('tattoo') || lower.includes('ink') || lower.includes('pierc')) return CATEGORY_CONFIG['tattoo shop'];
-  if (lower.includes('auto') || lower.includes('mechanic') || lower.includes('tire') || lower.includes('body shop') || lower.includes('detail')) return CATEGORY_CONFIG['auto repair'];
+  if (lower.includes('plumb')) return CATEGORY_CONFIG['plumber'];
+  if (lower.includes('hvac') || lower.includes('climate') || lower.includes('mechanical')) return CATEGORY_CONFIG['hvac'];
+  if (lower.includes('electr')) return CATEGORY_CONFIG['electrician'];
+  if (lower.includes('roof')) return CATEGORY_CONFIG['roofer'];
+  if (lower.includes('landscap')) return CATEGORY_CONFIG['landscaping'];
+  if (lower.includes('clean') || lower.includes('housekeep')) return CATEGORY_CONFIG['house cleaning'];
+  if (lower.includes('pet') || lower.includes('dog') || lower.includes('groom')) return CATEGORY_CONFIG['pet grooming'];
+  if (lower.includes('auto') || lower.includes('mechanic') || lower.includes('tire') || lower.includes('body') || lower.includes('detail') || lower.includes('diesel') || lower.includes('cycle') || lower.includes('audio') || lower.includes('radiator') || lower.includes('transmission') || lower.includes('garage')) return CATEGORY_CONFIG['auto repair'];
   return CATEGORY_CONFIG['other'];
 }
 
@@ -741,15 +799,83 @@ const rawSeedLeads = [
   }
 ];
 
-export const INITIAL_LEADS = rawSeedLeads.map(lead => {
+export function slugifyLeadName(name = '') {
+  return String(name)
+    .toLowerCase()
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '') || 'demo-business';
+}
+
+export function buildLivePreviewUrl(lead = {}) {
+  const slug = slugifyLeadName(lead.businessName);
+  return `https://developed-leaddesk.pages.dev/demo/${slug}`;
+}
+
+export function getOpenDemoUrl(lead = {}) {
+  const slug = slugifyLeadName(lead.businessName);
+  return `/demo/${slug}`;
+}
+
+// Merge Round 2 & Trades Expansion Leads into rawSeedLeads (skipping any duplicate phone or business name)
+const seenPhones = new Set(rawSeedLeads.map(l => String(l.phone || '').replace(/\D/g, '').slice(-10)));
+const seenNames = new Set(rawSeedLeads.map(l => slugifyLeadName(l.businessName)));
+
+const combinedSeedLeads = [...rawSeedLeads];
+ROUND2_RAW_LEADS.forEach((item, idx) => {
+  const normPhone = String(item.phone || '').replace(/\D/g, '').slice(-10);
+  const normName = slugifyLeadName(item.businessName);
+  if ((normPhone && seenPhones.has(normPhone)) || seenNames.has(normName)) {
+    return; // Skip duplicate
+  }
+  if (normPhone) seenPhones.add(normPhone);
+  seenNames.add(normName);
+
+  const catMeta = getCategoryMeta(item.category);
+  combinedSeedLeads.push({
+    id: `lead-abq-r2-${String(idx + 19).padStart(3, '0')}`,
+    businessName: item.businessName,
+    category: item.category,
+    phone: item.phone,
+    email: '',
+    ownerName: item.ownerName || '',
+    address: item.address,
+    city: item.city || 'Albuquerque, NM',
+    rating: item.rating || 4.7,
+    reviewCount: item.reviewCount || 25,
+    websiteStatus: item.websiteStatus || 'None',
+    weakPresenceDetail: item.weakPresenceDetail || (item.websiteStatus === 'Weak Presence' ? 'Booking / Directory page only' : 'No website'),
+    websiteUrl: '',
+    googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${item.businessName} ${item.address} ${item.city || 'Albuquerque NM'}`)}`,
+    stage: 'New Lead',
+    temperature: (item.reviewCount >= 50 || item.rating >= 4.8) ? 'Hot' : 'Warm',
+    nextFollowUp: null,
+    sampleSite: {
+      url: buildLivePreviewUrl(item),
+      dateSent: '',
+      method: 'Text / SMS'
+    },
+    deal: { priceAgreed: catMeta.avgPackage || 850, depositPaid: 0, paidInFull: false },
+    notes: [],
+    callLogs: []
+  });
+});
+
+export const INITIAL_LEADS = combinedSeedLeads.map(lead => {
   const scoreObj = calculatePitchScore(lead);
+  const demoLink = buildLivePreviewUrl(lead);
   return {
     ...lead,
-    pitchScore: scoreObj.total,
+    demoLink,
+    sampleSite: {
+      ...(lead.sampleSite || { dateSent: '', method: 'Text / SMS' }),
+      url: demoLink
+    },
+    pitchScore: lead.pitchScore || scoreObj.total,
     pitchBreakdown: scoreObj.breakdown,
-    pitchAngle: generatePitchAngle(lead),
-    bestTimeToCall: getBestTimeToCall(lead.category),
-    createdAt: '2026-10-22T08:00:00-06:00'
+    pitchAngle: lead.pitchAngle || generatePitchAngle(lead),
+    bestTimeToCall: lead.bestTimeToCall || getBestTimeToCall(lead.category),
+    createdAt: lead.createdAt || '2026-10-23T08:00:00-06:00'
   };
 });
 
