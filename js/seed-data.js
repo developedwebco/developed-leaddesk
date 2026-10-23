@@ -277,13 +277,7 @@ const rawSeedLeads = [
       method: 'Text / SMS'
     },
     deal: { priceAgreed: 1100, depositPaid: 0, paidInFull: false },
-    notes: [
-      {
-        id: 'note-gn-1',
-        createdAt: '2026-10-22T09:15:00-06:00',
-        text: 'Massive review count (271 reviews at 4.8★). Only using a Linktree in bio—prime candidate for an artist portfolio + custom booking inquiry site.'
-      }
-    ],
+    notes: [],
     callLogs: []
   },
   {
@@ -310,13 +304,7 @@ const rawSeedLeads = [
       method: 'Text / SMS'
     },
     deal: { priceAgreed: 850, depositPaid: 0, paidInFull: false },
-    notes: [
-      {
-        id: 'note-ed-1',
-        createdAt: '2026-10-22T09:20:00-06:00',
-        text: 'Beloved South Broadway bakery with 70 reviews (4.7★). Only has a generic ordering page—needs a true showcase for wedding/quinceañera cakes and pan dulce.'
-      }
-    ],
+    notes: [],
     callLogs: []
   },
   {
