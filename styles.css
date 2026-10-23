@@ -1333,6 +1333,8 @@ html, body {
     top: 0;
     bottom: 0;
     z-index: 80;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     transform: translateX(-100%);
     box-shadow: 12px 0 32px rgba(0, 0, 0, 0.7);
   }
@@ -1346,7 +1348,7 @@ html, body {
   .topbar {
     height: auto;
     min-height: 54px;
-    padding: 10px 12px;
+    padding: max(10px, env(safe-area-inset-top, 10px)) 12px 10px 12px;
     flex-wrap: wrap;
     gap: 8px;
     width: 100%;
@@ -1380,7 +1382,7 @@ html, body {
     order: 3;
   }
   .view-container {
-    padding: 12px;
+    padding: 12px 12px calc(32px + env(safe-area-inset-bottom, 0px)) 12px;
     width: 100%;
     max-width: 100%;
     overflow-x: hidden;
@@ -1391,6 +1393,38 @@ html, body {
     max-width: 100%;
     min-width: 0;
     overflow: hidden;
+  }
+  /* Convert wide multi-column tables into stacked mobile cards on phones */
+  .table-wrap {
+    overflow-x: visible;
+  }
+  .data-table,
+  .data-table tbody {
+    display: block;
+    width: 100%;
+  }
+  .data-table thead {
+    display: none;
+  }
+  .data-table tbody tr {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 100%;
+  }
+  .data-table tbody td {
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0;
+    border: none;
+    overflow-wrap: break-word;
   }
   .card-header {
     flex-wrap: wrap;
