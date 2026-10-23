@@ -10,8 +10,13 @@ import {
   generatePitchAngle,
   getBestTimeToCall,
   classifyWebsiteUrl,
-  getCategoryMeta
+  getCategoryMeta,
+  slugifyLeadName,
+  buildLivePreviewUrl,
+  getOpenDemoUrl
 } from './seed-data.js';
+
+export { getOpenDemoUrl, buildLivePreviewUrl, slugifyLeadName };
 
 const STORAGE_KEY = 'developed_leaddesk_crm_live_v2';
 
@@ -48,7 +53,10 @@ export function fillTemplatePlaceholders(text = '', lead = {}) {
   if (!text) return '';
   const owner = (lead.ownerName || '').trim() || 'there';
   const biz = (lead.businessName || '').trim() || 'your business';
-  const sampleLink = (lead.sampleSite?.url || '').trim() || `https://preview.developedweb.co/draft-${slugifyBusinessName(biz)}-unclaimed`;
+  const rawSample = (lead.sampleSite?.url || '').trim();
+  const sampleLink = (!rawSample || rawSample.includes('.developedweb.co'))
+    ? buildLivePreviewUrl(lead)
+    : rawSample;
   const rating = lead.rating ? Number(lead.rating).toFixed(1) : '4.8';
   const reviews = lead.reviewCount ? String(lead.reviewCount) : '40+';
   const city = (lead.city || 'Albuquerque').split(',')[0].trim();
@@ -129,6 +137,22 @@ class LeadDeskStore {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed.leads)) {
         parsed.leads = parsed.leads.map(l => this.enrichLead(l));
+        // Automatically merge any new INITIAL_LEADS that aren't in localStorage yet (skipping duplicates by phone or name)
+        const existingPhones = new Set(parsed.leads.map(l => normalizePhone(l.phone)).filter(Boolean));
+        const existingSlugs = new Set(parsed.leads.map(l => slugifyLeadName(l.businessName)));
+        let addedNew = false;
+        for (const seedLead of INITIAL_LEADS) {
+          const p = normalizePhone(seedLead.phone);
+          const s = slugifyLeadName(seedLead.businessName);
+          if ((p && existingPhones.has(p)) || existingSlugs.has(s)) continue;
+          if (p) existingPhones.add(p);
+          existingSlugs.add(s);
+          parsed.leads.push(this.enrichLead(structuredClone(seedLead)));
+          addedNew = true;
+        }
+        if (addedNew) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        }
       } else {
         parsed.leads = structuredClone(INITIAL_LEADS);
       }
@@ -165,7 +189,9 @@ class LeadDeskStore {
 
   enrichLead(lead) {
     const scoreObj = calculatePitchScore(lead);
-    const slug = slugifyBusinessName(lead.businessName);
+    const demoLink = buildLivePreviewUrl(lead);
+    const existingUrl = (lead.sampleSite?.url || '').trim();
+    const isAutoPreview = !existingUrl || existingUrl.includes('.developedweb.co') || existingUrl.includes('/preview.html?') || existingUrl.includes('/demo/');
     return {
       id: lead.id || `lead-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       businessName: (lead.businessName || 'Unnamed Business').trim(),
@@ -185,12 +211,13 @@ class LeadDeskStore {
       temperature: lead.temperature || (scoreObj.total >= 80 ? 'Hot' : 'Warm'),
       nextFollowUp: lead.nextFollowUp || null,
       bestTimeToCall: lead.bestTimeToCall || getBestTimeToCall(lead.category),
-      pitchScore: scoreObj.total,
+      pitchScore: lead.pitchScore || scoreObj.total,
       pitchBreakdown: scoreObj.breakdown,
       pitchAngle: lead.pitchAngle || generatePitchAngle(lead),
       isSampleDemo: Boolean(lead.isSampleDemo),
+      demoLink,
       sampleSite: {
-        url: lead.sampleSite?.url || `https://${slug}.developedweb.co`,
+        url: isAutoPreview ? demoLink : existingUrl,
         dateSent: lead.sampleSite?.dateSent || '',
         method: lead.sampleSite?.method || 'Text / SMS'
       },
@@ -203,6 +230,27 @@ class LeadDeskStore {
       callLogs: Array.isArray(lead.callLogs) ? lead.callLogs : [],
       createdAt: lead.createdAt || new Date().toISOString()
     };
+  }
+
+  markSampleSent(leadId, method = 'Text / SMS', customUrl = '') {
+    const lead = this.getLeadById(leadId);
+    if (!lead) return null;
+    const now = new Date();
+    const in2Days = new Date(now);
+    in2Days.setDate(in2Days.getDate() + 2);
+    in2Days.setHours(11, 0, 0, 0);
+    const url = customUrl || lead.demoLink || lead.sampleSite?.url || buildLivePreviewUrl(lead);
+    return this.updateLead(leadId, {
+      stage: lead.stage === 'Sold' ? 'Sold' : 'Sample Sent',
+      temperature: 'Hot',
+      nextFollowUp: lead.nextFollowUp || in2Days.toISOString(),
+      demoLink: url,
+      sampleSite: {
+        url,
+        dateSent: now.toISOString(),
+        method: method || lead.sampleSite?.method || 'Text / SMS'
+      }
+    });
   }
 
   getLeads() {
