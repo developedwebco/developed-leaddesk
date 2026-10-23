@@ -395,7 +395,7 @@ export function renderQuickMessageModal(leadId, defaultChannel = 'sms') {
 export function renderAddLeadModal() {
   return `
     <div class="modal-backdrop" id="add-lead-backdrop">
-      <div class="modal-card" onclick="event.stopPropagation()" style="width:620px;">
+      <div class="modal-card" onclick="event.stopPropagation()" style="width:100%;max-width:620px;">
         <div class="modal-header">
           <div class="card-title">+ Add Local Business Prospect</div>
           <button class="btn btn-sm" id="add-lead-close">✕</button>
@@ -477,7 +477,7 @@ export function renderAddLeadModal() {
 export function renderInstallAppModal(canTriggerNativeInstall = false) {
   return `
     <div class="modal-backdrop" id="install-app-backdrop">
-      <div class="modal-card" onclick="event.stopPropagation()" style="width:640px;">
+      <div class="modal-card" onclick="event.stopPropagation()" style="width:100%;max-width:640px;">
         <div class="modal-header">
           <div class="card-title">📲 Install DevEloped LeadDesk (Desktop & Phone App)</div>
           <button class="btn btn-sm" id="install-app-close">✕</button>
