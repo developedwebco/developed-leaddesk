@@ -90,13 +90,14 @@ function walkFiles(dir, baseDir = dir) {
     // 2. Upload all project files via Contents API
     const files = walkFiles(__dirname);
     for (const f of files) {
+      const encodedRelPath = f.relPath.split('/').map(encodeURIComponent).join('/');
       let existingSha = undefined;
       try {
-        const ex = await ghRequest('GET', `/repos/${owner}/${REPO_NAME}/contents/${f.relPath}`);
+        const ex = await ghRequest('GET', `/repos/${owner}/${REPO_NAME}/contents/${encodedRelPath}`);
         existingSha = ex.sha;
       } catch (_) {}
 
-      await ghRequest('PUT', `/repos/${owner}/${REPO_NAME}/contents/${f.relPath}`, {
+      await ghRequest('PUT', `/repos/${owner}/${REPO_NAME}/contents/${encodedRelPath}`, {
         message: `Add/update ${f.relPath}`,
         content: Buffer.from(f.content, 'utf8').toString('base64'),
         ...(existingSha ? { sha: existingSha } : {})
