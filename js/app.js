@@ -1113,9 +1113,13 @@ window.addEventListener('DOMContentLoaded', () => {
     renderApp();
   });
 
-  // Mobile Menu Toggle
-  document.getElementById('mobile-menu-toggle')?.addEventListener('click', () => {
+  // Mobile Menu Toggle & Close on View Tap
+  document.getElementById('mobile-menu-toggle')?.addEventListener('click', e => {
+    e.stopPropagation();
     document.getElementById('sidebar')?.classList.toggle('open');
+  });
+  document.getElementById('view-container')?.addEventListener('click', () => {
+    document.getElementById('sidebar')?.classList.remove('open');
   });
 
   // Global Top Search Bar
