@@ -257,6 +257,20 @@ function bindViewEvents() {
       renderApp();
     });
   });
+  container.querySelectorAll('[data-copy-demo-link]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = el.getAttribute('data-copy-demo-link');
+      const lead = store.getLeadById(id);
+      if (lead) {
+        const link = lead.demoLink || lead.sampleSite?.url || '';
+        navigator.clipboard?.writeText(link);
+        store.markSampleSent(id, 'Text / SMS', link);
+        showToast(`Copied Demo Link & logged Sample Sent for ${lead.businessName}!`, '📋');
+        renderApp();
+      }
+    });
+  });
   container.querySelectorAll('[data-copy-shield]').forEach(el => {
     el.addEventListener('click', e => {
       e.stopPropagation();
@@ -967,21 +981,23 @@ function bindOverlayEvents() {
     });
 
     document.getElementById('drawer-btn-mark-sample-sent')?.addEventListener('click', () => {
-      const in2d = new Date();
-      in2d.setDate(in2d.getDate() + 2);
-      in2d.setHours(11, 0, 0, 0);
-      store.updateLead(leadId, {
-        stage: 'Sample Sent',
-        temperature: 'Hot',
-        nextFollowUp: in2d.toISOString(),
-        sampleSite: {
-          url: document.getElementById('drawer-sample-url')?.value || '',
-          dateSent: new Date().toISOString(),
-          method: document.getElementById('drawer-sample-method')?.value || 'Text / SMS'
-        }
-      });
+      const customUrl = document.getElementById('drawer-sample-url')?.value || '';
+      const method = document.getElementById('drawer-sample-method')?.value || 'Text / SMS';
+      store.markSampleSent(leadId, method, customUrl);
       showToast('Stamped Sample Site sent & moved to "Sample Sent" stage!');
       renderApp();
+    });
+
+    document.getElementById('drawer-btn-copy-demo')?.addEventListener('click', () => {
+      const lead = store.getLeadById(leadId);
+      if (lead) {
+        const customUrl = document.getElementById('drawer-sample-url')?.value || lead.demoLink || lead.sampleSite?.url || '';
+        navigator.clipboard?.writeText(customUrl);
+        const method = document.getElementById('drawer-sample-method')?.value || 'Text / SMS';
+        store.markSampleSent(leadId, method, customUrl);
+        showToast(`Copied Demo Link & logged Sample Sent for ${lead.businessName}!`, '📋');
+        renderApp();
+      }
     });
 
     document.getElementById('drawer-btn-copy-shield')?.addEventListener('click', () => {
