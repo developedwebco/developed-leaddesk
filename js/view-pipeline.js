@@ -2,7 +2,7 @@
 // DevEloped LeadDesk — Salesforce-Style 9-Stage Kanban & Follow-Ups Queue
 // ============================================================================
 
-import { store } from './store.js';
+import { store, getOpenDemoUrl } from './store.js';
 import { PIPELINE_STAGES } from './seed-data.js';
 import {
   escapeHtml,
@@ -102,6 +102,7 @@ export function renderPipelineKanbanView(searchQuery = '', categoryFilter = 'all
                           <span class="mono" style="font-size:11.5px;color:var(--text-secondary);">${escapeHtml(l.phone)}</span>
                           <div style="display:flex;gap:4px;">
                             <button class="btn btn-sm btn-emerald" style="padding:3px 8px;font-size:11px;" data-dial-lead="${l.id}">Dial</button>
+                            <a href="${escapeHtml(getOpenDemoUrl(l))}" target="_blank" rel="noopener" class="btn btn-sm" style="padding:3px 7px;font-size:11px;text-decoration:none;color:#60A5FA;" title="Open Demo">Open Demo</a>
                             <button class="btn btn-sm" style="padding:3px 8px;font-size:11px;" data-open-lead="${l.id}">Open</button>
                           </div>
                         </div>
