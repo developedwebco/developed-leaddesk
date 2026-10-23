@@ -204,11 +204,8 @@ export function renderDashboardBottomSection() {
         </div>
         ${
           soldLeads.length === 0
-            ? `<div style="padding:22px;text-align:center;color:var(--text-muted);font-size:13px;">
-                Mark any lead as <strong>Sold</strong> in Call Mode or Pipeline to track its deposit and balance here!
-                <div style="margin-top:10px;font-size:11.5px;color:var(--text-secondary);">
-                  (30-day historical baseline: 4 sites sold · $3,700 revenue)
-                </div>
+            ? `<div style="padding:26px;text-align:center;color:var(--text-muted);font-size:13px;">
+                0 sites sold yet. Mark any lead as <strong>Sold</strong> in Call Mode or Pipeline to track its deposit and balance here.
                </div>`
             : `<div class="table-wrap">
                 <table class="data-table">
