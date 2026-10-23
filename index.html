@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#090C10" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="LeadDesk" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <title>DevEloped LeadDesk — Outbound Web Sales CRM | DevEloped Web Co.</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Left Navigation Rail -->
+    <aside class="sidebar" id="sidebar">
+      <div>
+        <div class="brand-header">
+          <div class="brand-logo">DE</div>
+          <div class="brand-titles">
+            <div class="brand-name">Dev<span>Eloped</span> LeadDesk</div>
+            <div class="brand-sub">DevEloped Web Co. · Outbound CRM</div>
+          </div>
+        </div>
+
+        <div class="sidebar-cta-wrap">
+          <button class="btn-start-calling-rail" id="rail-btn-start-calling">
+            <span>📞</span>
+            <span>Start Calling Queue</span>
+          </button>
+        </div>
+
+        <ul class="nav-list">
+          <li class="nav-section-label">Core Workspace</li>
+          <li>
+            <button class="nav-item active" data-nav="dashboard">
+              <span class="nav-item-left"><span>📊</span><span>Dashboard</span></span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-nav="finder">
+              <span class="nav-item-left"><span>🔍</span><span>Find Leads (Scrubber)</span></span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-nav="leads">
+              <span class="nav-item-left"><span>🎯</span><span>All Leads & Scores</span></span>
+              <span class="nav-badge" id="nav-badge-leads">18</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-nav="pipeline">
+              <span class="nav-item-left"><span>📋</span><span>Pipeline (Kanban)</span></span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-nav="followups">
+              <span class="nav-item-left"><span>⏰</span><span>Follow-Ups Queue</span></span>
+              <span class="nav-badge" id="nav-badge-followups">0</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-nav="callmode">
+              <span class="nav-item-left"><span>⚡</span><span>Call Mode (Dialer)</span></span>
+            </button>
+          </li>
+
+          <li class="nav-section-label">Playbooks & Data</li>
+          <li>
+            <button class="nav-item" data-nav="scripts">
+              <span class="nav-item-left"><span>🎙</span><span>Scripts Library</span></span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-nav="templates">
+              <span class="nav-item-left"><span>💬</span><span>Message Templates</span></span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-nav="settings">
+              <span class="nav-item-left"><span>⚙</span><span>Data, CSV & Settings</span></span>
+              <span class="nav-badge amber" id="nav-badge-settings" style="display:none;"></span>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="operator-card">
+          <div class="operator-info">
+            <div class="operator-avatar">DV</div>
+            <div class="operator-meta">
+              <span class="operator-name">Dev — Founder</span>
+              <span class="operator-loc">Albuquerque, NM · (505)</span>
+            </div>
+          </div>
+          <span style="width:8px;height:8px;border-radius:50%;background:#10B981;" title="Local Storage Active"></span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-area">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" id="mobile-menu-toggle">☰</button>
+          <h1 class="page-title" id="topbar-page-title">Command Center Dashboard</h1>
+        </div>
+
+        <div class="global-search-wrap">
+          <span class="global-search-icon">🔍</span>
+          <input
+            type="text"
+            class="global-search-input"
+            id="global-search-input"
+            placeholder="Search leads by business, phone, category, or owner..."
+          />
+        </div>
+
+        <div class="topbar-actions">
+          <button class="btn btn-sm btn-indigo" id="top-btn-install-app" title="Install on Desktop or Phone">📲 Install App</button>
+          <button class="btn btn-sm" id="top-btn-add-lead">+ Add Lead</button>
+          <button class="btn btn-sm btn-emerald" id="top-btn-start-calling">⚡ Start Calling</button>
+        </div>
+      </header>
+
+      <main class="view-container" id="view-container"></main>
+    </div>
+  </div>
+
+  <!-- Slide-Over Drawers & Modals -->
+  <div id="overlay-root"></div>
+
+  <!-- Toast Notifications -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script type="module" src="js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
