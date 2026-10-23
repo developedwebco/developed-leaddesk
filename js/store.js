@@ -13,7 +13,7 @@ import {
   getCategoryMeta
 } from './seed-data.js';
 
-const STORAGE_KEY = 'developed_leaddesk_crm_v1';
+const STORAGE_KEY = 'developed_leaddesk_crm_live_v2';
 
 // Helper to format YYYY-MM-DD in local time
 export function getLocalDateKey(dateInput = new Date()) {
@@ -64,10 +64,10 @@ export function fillTemplatePlaceholders(text = '', lead = {}) {
     .replace(/\{Category\}/gi, category);
 }
 
-// Create initial state
+// Create initial state — all call logs, history, and metrics start at 0
 function createDefaultState() {
   return {
-    version: '1.0.0',
+    version: '2.0.0',
     settings: {
       companyName: 'DevEloped Web Co.',
       operatorName: 'Dev',
@@ -81,42 +81,8 @@ function createDefaultState() {
     leads: structuredClone(INITIAL_LEADS),
     scripts: structuredClone(DEFAULT_SCRIPTS),
     templates: structuredClone(DEFAULT_TEMPLATES),
-    // Historical daily activity log so the 30-day chart is immediately informative & interactive
-    dailyHistory: generateBaseline30DayHistory()
+    dailyHistory: {}
   };
-}
-
-function generateBaseline30DayHistory() {
-  const history = {};
-  const now = new Date();
-  // Seed modest past activity over the prior 28 days so the 30-day chart has rich visual context
-  const sampleDays = [
-    { daysAgo: 26, calls: 14, contacts: 6, samples: 3, sold: 0, revenue: 0 },
-    { daysAgo: 24, calls: 19, contacts: 8, samples: 4, sold: 1, revenue: 850 },
-    { daysAgo: 22, calls: 12, contacts: 5, samples: 2, sold: 0, revenue: 0 },
-    { daysAgo: 19, calls: 22, contacts: 10, samples: 5, sold: 0, revenue: 0 },
-    { daysAgo: 17, calls: 18, contacts: 7, samples: 3, sold: 1, revenue: 950 },
-    { daysAgo: 14, calls: 25, contacts: 11, samples: 6, sold: 0, revenue: 0 },
-    { daysAgo: 11, calls: 16, contacts: 7, samples: 4, sold: 1, revenue: 800 },
-    { daysAgo: 8, calls: 21, contacts: 9, samples: 5, sold: 0, revenue: 0 },
-    { daysAgo: 5, calls: 24, contacts: 12, samples: 6, sold: 1, revenue: 1100 },
-    { daysAgo: 3, calls: 15, contacts: 6, samples: 3, sold: 0, revenue: 0 },
-    { daysAgo: 1, calls: 18, contacts: 8, samples: 4, sold: 0, revenue: 0 }
-  ];
-
-  for (const item of sampleDays) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - item.daysAgo);
-    const key = getLocalDateKey(d);
-    history[key] = {
-      calls: item.calls,
-      contacts: item.contacts,
-      samples: item.samples,
-      sold: item.sold,
-      revenue: item.revenue
-    };
-  }
-  return history;
 }
 
 class LeadDeskStore {
@@ -134,7 +100,6 @@ class LeadDeskStore {
         return fresh;
       }
       const parsed = JSON.parse(raw);
-      // Ensure all leads have up-to-date pitchScore & pitchAngle
       if (Array.isArray(parsed.leads)) {
         parsed.leads = parsed.leads.map(l => this.enrichLead(l));
       } else {
@@ -143,7 +108,7 @@ class LeadDeskStore {
       if (!parsed.scripts) parsed.scripts = structuredClone(DEFAULT_SCRIPTS);
       if (!parsed.templates) parsed.templates = structuredClone(DEFAULT_TEMPLATES);
       if (!parsed.settings) parsed.settings = createDefaultState().settings;
-      if (!parsed.dailyHistory) parsed.dailyHistory = generateBaseline30DayHistory();
+      parsed.dailyHistory = {};
       return parsed;
     } catch (err) {
       console.error('Failed to load state from localStorage, using defaults:', err);
@@ -556,40 +521,28 @@ class LeadDeskStore {
       }
     }
 
-    // Combine baseline 30-day history with live call logs
+    // Build 30-day series purely from real logged calls, samples, and sales
     const series = [];
-    let historyCalls = 0;
-    let historyContacts = 0;
 
     for (let i = daysRange - 1; i >= 0; i--) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
       const key = getLocalDateKey(d);
-      const base = this.state.dailyHistory?.[key] || { calls: 0, contacts: 0, samples: 0, sold: 0, revenue: 0 };
       const live = liveByDay[key] || { calls: 0, contacts: 0, samples: 0, sold: 0, revenue: 0 };
-
-      const dayCalls = base.calls + live.calls;
-      const dayContacts = base.contacts + live.contacts;
-      const daySamples = base.samples + live.samples;
-      const daySold = base.sold + live.sold;
-      const dayRev = base.revenue + live.revenue;
-
-      historyCalls += base.calls;
-      historyContacts += base.contacts;
 
       series.push({
         dateKey: key,
         label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        calls: dayCalls,
-        contacts: dayContacts,
-        samples: daySamples,
-        sold: daySold,
-        revenue: dayRev
+        calls: live.calls,
+        contacts: live.contacts,
+        samples: live.samples,
+        sold: live.sold,
+        revenue: live.revenue
       });
     }
 
-    const totalCallsAll = historyCalls + liveTotalCalls;
-    const totalContactsAll = historyContacts + livePositiveContacts;
+    const totalCallsAll = liveTotalCalls;
+    const totalContactsAll = livePositiveContacts;
     const contactRate = totalCallsAll > 0 ? Math.round((totalContactsAll / totalCallsAll) * 100) : 0;
 
     const soldLeads = this.state.leads.filter(l => l.stage === 'Sold');
@@ -597,23 +550,18 @@ class LeadDeskStore {
       l => l.stage === 'Sample Sent' || l.stage === 'Sold' || Boolean(l.sampleSite?.dateSent)
     );
 
-    // Baseline historical sales + live sold leads
-    const baselineSoldCount = Object.values(this.state.dailyHistory || {}).reduce((acc, d) => acc + (d.sold || 0), 0);
-    const baselineRevenue = Object.values(this.state.dailyHistory || {}).reduce((acc, d) => acc + (d.revenue || 0), 0);
-    const baselineSamplesCount = Object.values(this.state.dailyHistory || {}).reduce((acc, d) => acc + (d.samples || 0), 0);
-
-    const liveSoldRevenueContracted = soldLeads.reduce((sum, l) => sum + (Number(l.deal?.priceAgreed) || 850), 0);
+    const liveSoldRevenueContracted = soldLeads.reduce((sum, l) => sum + (Number(l.deal?.priceAgreed) || 0), 0);
     const liveSoldRevenueCollected = soldLeads.reduce((sum, l) => {
-      if (l.deal?.paidInFull) return sum + (Number(l.deal?.priceAgreed) || 850);
+      if (l.deal?.paidInFull) return sum + (Number(l.deal?.priceAgreed) || 0);
       return sum + (Number(l.deal?.depositPaid) || 0);
     }, 0);
     const liveBalanceDue = Math.max(0, liveSoldRevenueContracted - liveSoldRevenueCollected);
 
-    const totalSitesSold = soldLeads.length + baselineSoldCount;
-    const totalRevenueContracted = liveSoldRevenueContracted + baselineRevenue;
-    const totalRevenueCollected = liveSoldRevenueCollected + baselineRevenue;
-    const avgSalePrice = totalSitesSold > 0 ? Math.round(totalRevenueContracted / totalSitesSold) : 850;
-    const totalSamplesSent = samplesSentLeads.length + baselineSamplesCount;
+    const totalSitesSold = soldLeads.length;
+    const totalRevenueContracted = liveSoldRevenueContracted;
+    const totalRevenueCollected = liveSoldRevenueCollected;
+    const avgSalePrice = totalSitesSold > 0 ? Math.round(totalRevenueContracted / totalSitesSold) : 0;
+    const totalSamplesSent = samplesSentLeads.length;
 
     // Active Pipeline Value (all active stages excluding Not Interested, Do Not Call, Sold)
     const activeLeads = this.state.leads.filter(
