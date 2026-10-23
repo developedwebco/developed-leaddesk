@@ -72,7 +72,11 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  let filePath = path.join(PUBLIC_DIR, parsedUrl.pathname === '/' ? 'index.html' : parsedUrl.pathname);
+  const isDemoRoute = parsedUrl.pathname === '/demo' || parsedUrl.pathname.startsWith('/demo/');
+  let filePath = path.join(
+    PUBLIC_DIR,
+    isDemoRoute ? 'preview.html' : (parsedUrl.pathname === '/' ? 'index.html' : parsedUrl.pathname)
+  );
   const ext = path.extname(filePath).toLowerCase();
 
   if (!filePath.startsWith(PUBLIC_DIR)) {
