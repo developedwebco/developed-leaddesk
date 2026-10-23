@@ -1,4 +1,4 @@
-const CACHE_NAME = 'developed-leaddesk-v2';
+const CACHE_NAME = 'developed-leaddesk-v3';
 const ASSETS = [
   '/',
   '/index.html',
