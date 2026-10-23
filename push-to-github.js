@@ -7,7 +7,8 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-const REPO_NAME = process.env.GITHUB_REPO || 'delveloped-leaddesk';
+const ORG_NAME = process.env.GITHUB_ORG || 'developedwebco';
+const REPO_NAME = process.env.GITHUB_REPO || 'developed-leaddesk';
 const TOKEN = process.argv[2] || process.env.GITHUB_TOKEN;
 
 if (!TOKEN) {
@@ -50,7 +51,7 @@ function ghRequest(method, endpoint, body = null) {
 function walkFiles(dir, baseDir = dir) {
   let results = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (['node_modules', '.git', '.wrangler'].includes(entry.name)) continue;
+    if (['node_modules', '.git', '.wrangler', 'android'].includes(entry.name)) continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       results = results.concat(walkFiles(full, baseDir));
@@ -67,27 +68,23 @@ function walkFiles(dir, baseDir = dir) {
 (async () => {
   try {
     const user = await ghRequest('GET', '/user');
-    const owner = user.login;
-    console.log(`Authenticated as GitHub user: ${owner}`);
+    const owner = ORG_NAME || user.login;
+    console.log(`Authenticated as GitHub user: ${user.login} -> Target Org/Owner: ${owner}`);
 
-    // 1. Create or get private repository
+    // 1. Create or get organization repository
     let repo;
     try {
-      repo = await ghRequest('POST', '/user/repos', {
+      repo = await ghRequest('GET', `/repos/${owner}/${REPO_NAME}`);
+      console.log(`Using existing organization repository: ${repo.html_url}`);
+    } catch (err) {
+      repo = await ghRequest('POST', `/orgs/${owner}/repos`, {
         name: REPO_NAME,
         description: 'DevEloped LeadDesk — Outbound Cold-Call & Website Sales CRM for DevEloped Web Co.',
         private: true,
         auto_init: true
       });
-      console.log(`Created new private repository: ${repo.html_url}`);
+      console.log(`Created new organization repository: ${repo.html_url}`);
       await new Promise(r => setTimeout(r, 1500));
-    } catch (err) {
-      if (err.message.includes('422')) {
-        repo = await ghRequest('GET', `/repos/${owner}/${REPO_NAME}`);
-        console.log(`Using existing repository: ${repo.html_url}`);
-      } else {
-        throw err;
-      }
     }
 
     // 2. Upload all project files via Contents API
