@@ -3,7 +3,7 @@
 // Built for Dev — DevEloped Web Co. (Albuquerque, NM)
 // ============================================================================
 
-import { store, fillTemplatePlaceholders, normalizePhone } from './store.js';
+import { store, fillTemplatePlaceholders, normalizePhone, buildPreviewProtectionSnippet } from './store.js';
 import { searchProspects } from './finder-service.js';
 import { renderDashboardView, renderDashboardBottomSection } from './view-dashboard.js';
 import {
@@ -255,6 +255,16 @@ function bindViewEvents() {
       e.stopPropagation();
       appState.messageModal = { leadId: el.getAttribute('data-email-lead'), channel: 'email' };
       renderApp();
+    });
+  });
+  container.querySelectorAll('[data-copy-shield]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const lead = store.getLeadById(el.getAttribute('data-copy-shield'));
+      if (lead) {
+        navigator.clipboard?.writeText(buildPreviewProtectionSnippet(lead));
+        showToast(`Copied Preview Protection Shield HTML for ${lead.businessName}!`, '🛡');
+      }
     });
   });
 
@@ -972,6 +982,14 @@ function bindOverlayEvents() {
       });
       showToast('Stamped Sample Site sent & moved to "Sample Sent" stage!');
       renderApp();
+    });
+
+    document.getElementById('drawer-btn-copy-shield')?.addEventListener('click', () => {
+      const lead = store.getLeadById(leadId);
+      if (lead) {
+        navigator.clipboard?.writeText(buildPreviewProtectionSnippet(lead));
+        showToast(`Copied Preview Protection Shield HTML for ${lead.businessName}!`, '🛡');
+      }
     });
 
     document.getElementById('drawer-btn-add-note')?.addEventListener('click', () => {
