@@ -1,0 +1,12 @@
+{
+  "name": "developed-leaddesk",
+  "version": "1.0.0",
+  "description": "DevEloped LeadDesk — Outbound Cold-Call & Website Sales CRM for DevEloped Web Co.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "author": "Dev — DevEloped Web Co.",
+  "license": "MIT"
+}
