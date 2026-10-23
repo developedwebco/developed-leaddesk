@@ -2,8 +2,8 @@
 // DevEloped LeadDesk — Scripts Library, Message Templates & Data/Settings Views
 // ============================================================================
 
-import { store, fillTemplatePlaceholders } from './store.js';
-import { escapeHtml, renderPitchBadge } from './ui-helpers.js';
+import { store, fillTemplatePlaceholders, getOpenDemoUrl } from './store.js';
+import { escapeHtml, renderPitchBadge, renderCategoryBadge, renderStagePill } from './ui-helpers.js';
 
 export function renderScriptsLibraryView(previewLeadId = '') {
   const scripts = store.state.scripts;
@@ -123,6 +123,54 @@ export function renderTemplatesLibraryView(previewLeadId = '') {
         </div>`
         )
         .join('')}
+    </div>
+
+    <div class="card" style="margin-top:18px;">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🌐 Demo Links — All ${leads.length} Leads</div>
+          <div class="card-subtitle">Shareable demo links with top lock banner & watermark · Copying a link logs Sample Sent automatically</div>
+        </div>
+      </div>
+      <div class="table-wrap" style="max-height:460px;overflow-y:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Business</th>
+              <th>Category</th>
+              <th>Demo Link</th>
+              <th>Stage</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${leads
+              .map(
+                l => `
+              <tr>
+                <td>
+                  <div style="font-weight:700;cursor:pointer;" data-open-lead="${l.id}">${escapeHtml(l.businessName)}</div>
+                  <div class="mono" style="font-size:11.5px;color:var(--text-muted);">${escapeHtml(l.phone)}</div>
+                </td>
+                <td>${renderCategoryBadge(l.category)}</td>
+                <td>
+                  <a href="${escapeHtml(getOpenDemoUrl(l))}" target="_blank" rel="noopener" class="mono" style="font-size:12px;color:#60A5FA;text-decoration:none;word-break:break-all;">
+                    ${escapeHtml(l.demoLink || l.sampleSite?.url || '')}
+                  </a>
+                </td>
+                <td>${renderStagePill(l.stage)}</td>
+                <td>
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <a href="${escapeHtml(getOpenDemoUrl(l))}" target="_blank" rel="noopener" class="btn btn-sm btn-emerald" style="text-decoration:none;">Open Demo</a>
+                    <button type="button" class="btn btn-sm btn-primary" data-copy-demo-link="${l.id}">📋 Copy Demo Link</button>
+                  </div>
+                </td>
+              </tr>`
+              )
+              .join('')}
+          </tbody>
+        </table>
+      </div>
     </div>
   `;
 }
