@@ -2,7 +2,7 @@
 // DevEloped LeadDesk — Lead Detail Drawer, Quick SMS/Email, CSV & Merge Modals
 // ============================================================================
 
-import { store, fillTemplatePlaceholders, slugifyBusinessName } from './store.js';
+import { store, fillTemplatePlaceholders, slugifyBusinessName, getOpenDemoUrl } from './store.js';
 import { PIPELINE_STAGES, CATEGORY_CONFIG } from './seed-data.js';
 import {
   escapeHtml,
@@ -198,16 +198,23 @@ export function renderLeadDetailDrawer(leadId, onClose, onLaunchCallMode, onOpen
 
           <!-- Sample Site & Revenue Tracker (2-Column Split) -->
           <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:14px;">
-            <!-- Sample Site Section -->
+            <!-- Sample Site / Demo Link Section -->
             <div class="card" style="padding:16px;border-color:rgba(99,102,241,0.35);">
               <div class="card-title" style="font-size:14px;margin-bottom:10px;color:#A5B4FC;">
-                🌐 Sample Site Built for Prospect
+                🌐 Demo Link & Sample Site Tracker
               </div>
               <div class="form-group" style="margin-bottom:10px;">
-                <label class="form-label">Demo Website URL</label>
-                <div style="display:flex;gap:6px;">
-                  <input type="url" class="input mono" id="drawer-sample-url" value="${escapeHtml(lead.sampleSite?.url || '')}" style="flex:1;font-size:12px;" />
-                  <a href="${escapeHtml(lead.sampleSite?.url || '#')}" target="_blank" rel="noopener" class="btn btn-sm" title="Open Sample Link">↗</a>
+                <label class="form-label">Demo Link</label>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <input type="url" class="input mono" id="drawer-sample-url" value="${escapeHtml(lead.demoLink || lead.sampleSite?.url || '')}" style="flex:1;font-size:12px;" />
+                </div>
+                <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+                  <a href="${escapeHtml(getOpenDemoUrl(lead))}" target="_blank" rel="noopener" class="btn btn-sm btn-emerald" style="flex:1;text-decoration:none;text-align:center;">
+                    🌐 Open Demo
+                  </a>
+                  <button type="button" class="btn btn-sm btn-primary" id="drawer-btn-copy-demo" data-copy-demo-link="${lead.id}" style="flex:1;">
+                    📋 Copy Demo Link
+                  </button>
                 </div>
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
@@ -228,9 +235,6 @@ export function renderLeadDetailDrawer(leadId, onClose, onLaunchCallMode, onOpen
               <div style="display:flex;flex-direction:column;gap:8px;">
                 <button class="btn btn-indigo btn-sm" id="drawer-btn-mark-sample-sent" style="width:100%;">
                   ✓ Stamp Sent Today & Move to "Sample Sent"
-                </button>
-                <button class="btn btn-sm" id="drawer-btn-copy-shield" style="width:100%;border-color:rgba(59,130,246,0.4);color:#93C5FD;">
-                  🛡 Copy Preview Protection Shield HTML (Locks Demo Site)
                 </button>
               </div>
             </div>
