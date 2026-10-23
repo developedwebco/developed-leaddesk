@@ -2,7 +2,7 @@
 // DevEloped LeadDesk — Lead Finder View & Master Leads Directory View
 // ============================================================================
 
-import { store } from './store.js';
+import { store, getOpenDemoUrl } from './store.js';
 import { PIPELINE_STAGES } from './seed-data.js';
 import {
   escapeHtml,
@@ -354,8 +354,10 @@ export function renderLeadsDirectoryView(filterState) {
                 </td>
                 <td>${formatFollowUpBadge(l.nextFollowUp) || '<span style="color:var(--text-muted);font-size:11.5px;">—</span>'}</td>
                 <td>
-                  <div style="display:flex;gap:5px;">
+                  <div style="display:flex;gap:5px;flex-wrap:wrap;">
                     <button class="btn btn-sm btn-emerald" data-dial-lead="${l.id}" title="Call in Power Dialer">📞 Dial</button>
+                    <a href="${escapeHtml(getOpenDemoUrl(l))}" target="_blank" rel="noopener" class="btn btn-sm" style="text-decoration:none;color:#60A5FA;border-color:rgba(59,130,246,0.35);" title="Open Demo for ${escapeHtml(l.businessName)}">Open Demo</a>
+                    <button class="btn btn-sm" data-copy-demo-link="${l.id}" title="Copy Demo Link (${escapeHtml(l.demoLink)})">📋 Copy Link</button>
                     <button class="btn btn-sm btn-indigo" data-sms-lead="${l.id}" title="Send Text Template">💬</button>
                     <button class="btn btn-sm" data-open-lead="${l.id}">Profile</button>
                   </div>
