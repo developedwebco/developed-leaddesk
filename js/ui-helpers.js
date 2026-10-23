@@ -147,8 +147,8 @@ export function render30DayChartSVG(series = []) {
   const yTicks = [0, Math.round(maxCalls / 2), maxCalls];
 
   return `
-    <div style="width:100%;overflow-x:auto;">
-      <svg viewBox="0 0 ${width} ${height}" style="width:100%;height:auto;min-width:520px;display:block;">
+    <div style="width:100%;max-width:100%;overflow:hidden;">
+      <svg viewBox="0 0 ${width} ${height}" style="width:100%;max-width:100%;height:auto;display:block;">
         <defs>
           <linearGradient id="callsGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.36"/>
