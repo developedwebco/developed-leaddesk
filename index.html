@@ -11,6 +11,12 @@
   <link rel="icon" type="image/svg+xml" href="icon.svg" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <title>DevEloped LeadDesk — Outbound Web Sales CRM | DevEloped Web Co.</title>
+  <script>
+    if (window.location.pathname.startsWith('/demo/')) {
+      const slug = window.location.pathname.split('/').filter(Boolean)[1] || '';
+      window.location.replace('/preview.html?slug=' + encodeURIComponent(slug));
+    }
+  </script>
   <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body>
@@ -137,11 +143,11 @@
   <!-- Toast Notifications -->
   <div class="toast-container" id="toast-container"></div>
 
-  <script type="module" src="js/app.js?v=5"></script>
+  <script type="module" src="js/app.js?v=7"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js?v=5').catch(() => {});
+        navigator.serviceWorker.register('/sw.js?v=7').catch(() => {});
       });
     }
   </script>
