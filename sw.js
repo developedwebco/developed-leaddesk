@@ -1,11 +1,13 @@
-const CACHE_NAME = 'developed-leaddesk-v5';
+const CACHE_NAME = 'developed-leaddesk-v7';
 const ASSETS = [
   '/',
   '/index.html',
+  '/preview.html',
   '/styles.css',
   '/manifest.json',
   '/icon.svg',
   '/js/app.js',
+  '/js/round2-leads.js',
   '/js/seed-data.js',
   '/js/store.js',
   '/js/finder-service.js',
