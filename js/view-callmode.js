@@ -2,7 +2,7 @@
 // DevEloped LeadDesk — Call Mode (Full-Screen Power Dialer)
 // ============================================================================
 
-import { store, fillTemplatePlaceholders } from './store.js';
+import { store, fillTemplatePlaceholders, getOpenDemoUrl } from './store.js';
 import {
   escapeHtml,
   renderPitchBadge,
@@ -154,9 +154,10 @@ function renderCallModeColumns(activeLead, dialerState, timerMin, timerRem, defC
               </div>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <a href="${escapeHtml(getOpenDemoUrl(activeLead))}" target="_blank" rel="noopener" class="btn btn-sm btn-emerald" style="text-decoration:none;">🌐 Open Demo</a>
+              <button type="button" class="btn btn-sm btn-primary" data-copy-demo-link="${activeLead.id}">📋 Copy Demo Link</button>
               <button class="btn btn-indigo" data-sms-lead="${activeLead.id}">💬 Text Sample</button>
               <button class="btn" data-email-lead="${activeLead.id}">✉️ Email Sample</button>
-              <button class="btn btn-sm" data-copy-shield="${activeLead.id}" title="Copy HTML/JS Preview Protection Shield for this demo site" style="border-color:rgba(59,130,246,0.4);color:#93C5FD;">🛡 Copy Demo Lock Code</button>
             </div>
           </div>
 
@@ -168,7 +169,7 @@ function renderCallModeColumns(activeLead, dialerState, timerMin, timerRem, defC
             <div style="font-weight:600;font-size:13.5px;color:#F8FAFC;">"${escapeHtml(activeLead.pitchAngle)}"</div>
           </div>
 
-          <!-- Inline Owner Name & Sample URL Capture -->
+          <!-- Inline Owner Name & Demo Link Capture -->
           <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:10px;">
             <div class="form-group">
               <label class="form-label">Owner Name (fill in live)</label>
@@ -179,8 +180,11 @@ function renderCallModeColumns(activeLead, dialerState, timerMin, timerRem, defC
               <input type="email" class="input" id="dialer-email-input" value="${escapeHtml(activeLead.email)}" placeholder="owner@email.com" />
             </div>
             <div class="form-group">
-              <label class="form-label">Sample Site URL</label>
-              <input type="url" class="input mono" id="dialer-sample-input" value="${escapeHtml(activeLead.sampleSite?.url || '')}" style="font-size:12px;" />
+              <label class="form-label">Demo Link</label>
+              <div style="display:flex;gap:6px;">
+                <input type="url" class="input mono" id="dialer-sample-input" value="${escapeHtml(activeLead.demoLink || activeLead.sampleSite?.url || '')}" style="font-size:12px;flex:1;" />
+                <a href="${escapeHtml(getOpenDemoUrl(activeLead))}" target="_blank" rel="noopener" class="btn btn-sm" title="Open Demo">Open Demo ↗</a>
+              </div>
             </div>
           </div>
 
