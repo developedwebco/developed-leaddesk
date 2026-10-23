@@ -156,6 +156,7 @@ function renderCallModeColumns(activeLead, dialerState, timerMin, timerRem, defC
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
               <button class="btn btn-indigo" data-sms-lead="${activeLead.id}">💬 Text Sample</button>
               <button class="btn" data-email-lead="${activeLead.id}">✉️ Email Sample</button>
+              <button class="btn btn-sm" data-copy-shield="${activeLead.id}" title="Copy HTML/JS Preview Protection Shield for this demo site" style="border-color:rgba(59,130,246,0.4);color:#93C5FD;">🛡 Copy Demo Lock Code</button>
             </div>
           </div>
 
