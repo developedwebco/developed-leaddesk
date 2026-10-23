@@ -1,0 +1,19 @@
+{
+  "appId": "com.developed.leaddesk",
+  "appName": "DevEloped LeadDesk",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://developed-leaddesk.pages.dev",
+    "cleartext": true,
+    "allowNavigation": [
+      "developed-leaddesk.pages.dev",
+      "delveloped-leaddesk.pages.dev",
+      "*.pages.dev"
+    ]
+  },
+  "android": {
+    "backgroundColor": "#090C10",
+    "allowMixedContent": true
+  }
+}
