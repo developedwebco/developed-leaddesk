@@ -137,11 +137,11 @@
   <!-- Toast Notifications -->
   <div class="toast-container" id="toast-container"></div>
 
-  <script type="module" src="js/app.js?v=4"></script>
+  <script type="module" src="js/app.js?v=5"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js?v=4').catch(() => {});
+        navigator.serviceWorker.register('/sw.js?v=5').catch(() => {});
       });
     }
   </script>
