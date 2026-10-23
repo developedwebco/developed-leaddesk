@@ -4,11 +4,11 @@
   "webDir": "www",
   "bundledWebRuntime": false,
   "server": {
-    "url": "https://developed-leaddesk.pages.dev",
+    "url": "https://delveloped-leaddesk.pages.dev",
     "cleartext": true,
     "allowNavigation": [
-      "developed-leaddesk.pages.dev",
       "delveloped-leaddesk.pages.dev",
+      "developed-leaddesk.pages.dev",
       "*.pages.dev"
     ]
   },
