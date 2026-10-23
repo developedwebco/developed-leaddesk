@@ -809,7 +809,7 @@ export function slugifyLeadName(name = '') {
 
 export function buildLivePreviewUrl(lead = {}) {
   const slug = slugifyLeadName(lead.businessName);
-  return `https://developed-leaddesk.pages.dev/demo/${slug}`;
+  return `https://delveloped-leaddesk.pages.dev/demo/${slug}`;
 }
 
 export function getOpenDemoUrl(lead = {}) {
