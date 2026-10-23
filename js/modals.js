@@ -225,9 +225,14 @@ export function renderLeadDetailDrawer(leadId, onClose, onLaunchCallMode, onOpen
                   </select>
                 </div>
               </div>
-              <button class="btn btn-indigo btn-sm" id="drawer-btn-mark-sample-sent" style="width:100%;">
-                ✓ Stamp Sent Today & Move to "Sample Sent"
-              </button>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn btn-indigo btn-sm" id="drawer-btn-mark-sample-sent" style="width:100%;">
+                  ✓ Stamp Sent Today & Move to "Sample Sent"
+                </button>
+                <button class="btn btn-sm" id="drawer-btn-copy-shield" style="width:100%;border-color:rgba(59,130,246,0.4);color:#93C5FD;">
+                  🛡 Copy Preview Protection Shield HTML (Locks Demo Site)
+                </button>
+              </div>
             </div>
 
             <!-- Revenue Tracker Section -->
