@@ -48,7 +48,7 @@ export function fillTemplatePlaceholders(text = '', lead = {}) {
   if (!text) return '';
   const owner = (lead.ownerName || '').trim() || 'there';
   const biz = (lead.businessName || '').trim() || 'your business';
-  const sampleLink = (lead.sampleSite?.url || '').trim() || `https://${slugifyBusinessName(biz)}.developedweb.co`;
+  const sampleLink = (lead.sampleSite?.url || '').trim() || `https://preview.developedweb.co/draft-${slugifyBusinessName(biz)}-unclaimed`;
   const rating = lead.rating ? Number(lead.rating).toFixed(1) : '4.8';
   const reviews = lead.reviewCount ? String(lead.reviewCount) : '40+';
   const city = (lead.city || 'Albuquerque').split(',')[0].trim();
@@ -62,6 +62,33 @@ export function fillTemplatePlaceholders(text = '', lead = {}) {
     .replace(/\{ReviewCount\}/gi, reviews)
     .replace(/\{City\}/gi, city)
     .replace(/\{Category\}/gi, category);
+}
+
+// Generates the HTML/JS Preview Protection Shield snippet to paste into any sample site
+export function buildPreviewProtectionSnippet(lead = {}) {
+  const biz = (lead.businessName || 'Your Business').replace(/"/g, '&quot;');
+  const price = lead.deal?.priceAgreed || 850;
+  return `<!-- DevEloped Web Co. — Sample Site Protection Shield for ${biz} -->
+<meta name="robots" content="noindex, nofollow" />
+<div id="dev-preview-bar" style="position:fixed;bottom:0;left:0;right:0;z-index:999999;background:linear-gradient(90deg,#090C10,#1E293B);border-top:2px solid #3B82F6;color:#F8FAFC;padding:12px 16px;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 -8px 30px rgba(0,0,0,0.8);">
+  <div style="font-size:13px;line-height:1.4;">
+    <strong style="color:#60A5FA;">🔒 UNCLAIMED DESIGN PREVIEW: ${biz}</strong> · Built by <strong>DevEloped Web Co. (Albuquerque)</strong>
+    <span style="display:block;font-size:11.5px;color:#94A3B8;">Buttons & Google indexing are locked in preview mode. Unclaimed preview expires in 72 hours.</span>
+  </div>
+  <a href="sms:+15050000000?body=${encodeURIComponent(`Hey Dev, I want to claim and publish the website for ${lead.businessName || 'my business'}!`)}" style="background:#10B981;color:#052E16;font-weight:800;font-size:13px;padding:9px 16px;border-radius:8px;text-decoration:none;white-space:nowrap;">
+    ✓ Claim & Activate Site ($${price})
+  </a>
+</div>
+<script>
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('a, button');
+    if (link && !link.closest('#dev-preview-bar')) {
+      e.preventDefault();
+      alert('🔒 Preview Mode (DevEloped Web Co.):\\n\\nThis is an unclaimed design preview for ${biz.replace(/'/g, "\\'")}. Once activated on your custom .com domain, this button will connect directly to your business!');
+    }
+  });
+  document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+</script>`;
 }
 
 // Create initial state — all call logs, history, and metrics start at 0
