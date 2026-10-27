@@ -1,155 +1,208 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#090C10" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="LeadDesk" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" type="image/svg+xml" href="icon.svg" />
-  <link rel="apple-touch-icon" href="icon.svg" />
-  <title>DevEloped LeadDesk — Outbound Web Sales CRM | DevEloped Web Co.</title>
-  <script>
-    if (window.location.pathname.startsWith('/demo/')) {
-      const slug = window.location.pathname.split('/').filter(Boolean)[1] || '';
-      window.location.replace('/preview.html?slug=' + encodeURIComponent(slug));
+  <meta charset="UTF-8">
+  <title>DevEloped LeadDesk CRM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --badge-high: #ef4444;
+      --badge-med: #f59e0b;
+      --badge-won: #10b981;
     }
-  </script>
-  <link rel="stylesheet" href="styles.css?v=4" />
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 20px; }
+    h1 { margin: 0; font-size: 1.5rem; letter-spacing: -0.5px; }
+    .due-box { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--badge-high); border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; display: none; }
+    .layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+    label { font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 10px; }
+    input, select, textarea, button { width: 100%; padding: 8px 12px; margin-top: 4px; background: #0f172a; border: 1px solid var(--border); border-radius: 5px; color: var(--text); font-size: 0.9rem; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); outline: none; }
+    button { background: var(--accent); color: #000; font-weight: 600; cursor: pointer; border: none; margin-top: 15px; transition: 0.2s; }
+    button:hover { background: var(--accent-hover); color: #fff; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td { padding: 12px; border-bottom: 1px solid var(--border); }
+    th { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); }
+    .badge { padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+    .badge-HIGH { background: rgba(239, 68, 68, 0.2); color: var(--badge-high); }
+    .badge-MEDIUM { background: rgba(245, 158, 11, 0.2); color: var(--badge-med); }
+    .actions a { display: inline-block; padding: 4px 8px; background: #334155; color: var(--text); border-radius: 4px; text-decoration: none; font-size: 0.75rem; margin-right: 5px; }
+    .actions a:hover { background: var(--accent); color: #000; }
+  </style>
 </head>
 <body>
-  <div class="app-shell">
-    <!-- Left Navigation Rail -->
-    <aside class="sidebar" id="sidebar">
-      <div>
-        <div class="brand-header">
-          <div class="brand-logo">DE</div>
-          <div class="brand-titles">
-            <div class="brand-name">Dev<span>Eloped</span> LeadDesk</div>
-            <div class="brand-sub">DevEloped Web Co. · Outbound CRM</div>
-          </div>
-        </div>
+  <header>
+    <h1>DevEloped LeadDesk CRM</h1>
+    <div id="stats" style="font-size: 0.9rem; color: var(--text-muted);">Active Cloud Pipeline</div>
+  </header>
 
-        <div class="sidebar-cta-wrap">
-          <button class="btn-start-calling-rail" id="rail-btn-start-calling">
-            <span>📞</span>
-            <span>Start Calling Queue</span>
-          </button>
-        </div>
+  <div id="dueAlert" class="due-box">
+    <strong>Action Required:</strong> <span id="dueCount">0</span> lead(s) need follow-up today!
+  </div>
 
-        <ul class="nav-list">
-          <li class="nav-section-label">Core Workspace</li>
-          <li>
-            <button class="nav-item active" data-nav="dashboard">
-              <span class="nav-item-left"><span>📊</span><span>Dashboard</span></span>
-            </button>
-          </li>
-          <li>
-            <button class="nav-item" data-nav="finder">
-              <span class="nav-item-left"><span>🔍</span><span>Find Leads (Scrubber)</span></span>
-            </button>
-          </li>
-          <li>
-            <button class="nav-item" data-nav="leads">
-              <span class="nav-item-left"><span>🎯</span><span>All Leads & Scores</span></span>
-              <span class="nav-badge" id="nav-badge-leads">18</span>
-            </button>
-          </li>
-          <li>
-            <button class="nav-item" data-nav="pipeline">
-              <span class="nav-item-left"><span>📋</span><span>Pipeline (Kanban)</span></span>
-            </button>
-          </li>
-          <li>
-            <button class="nav-item" data-nav="followups">
-              <span class="nav-item-left"><span>⏰</span><span>Follow-Ups Queue</span></span>
-              <span class="nav-badge" id="nav-badge-followups">0</span>
-            </button>
-          </li>
-          <li>
-            <button class="nav-item" data-nav="callmode">
-              <span class="nav-item-left"><span>⚡</span><span>Call Mode (Dialer)</span></span>
-            </button>
-          </li>
+  <div class="layout">
+    <div class="card">
+      <h3 style="margin-top:0;">New Lead Intake</h3>
+      <form id="leadForm">
+        <label>Full Name *</label>
+        <input type="text" id="name" required placeholder="Customer Name">
 
-          <li class="nav-section-label">Playbooks & Data</li>
-          <li>
-            <button class="nav-item" data-nav="scripts">
-              <span class="nav-item-left"><span>🎙</span><span>Scripts Library</span></span>
-            </button>
-          </li>
-          <li>
-            <button class="nav-item" data-nav="templates">
-              <span class="nav-item-left"><span>💬</span><span>Message Templates</span></span>
-            </button>
-          </li>
-          <li>
-            <button class="nav-item" data-nav="settings">
-              <span class="nav-item-left"><span>⚙</span><span>Data, CSV & Settings</span></span>
-              <span class="nav-badge amber" id="nav-badge-settings" style="display:none;"></span>
-            </button>
-          </li>
-        </ul>
+        <label>Phone</label>
+        <input type="tel" id="phone" placeholder="(505) 000-0000">
+
+        <label>Email</label>
+        <input type="email" id="email" placeholder="customer@domain.com">
+
+        <label>Service Requested</label>
+        <input type="text" id="service_requested" placeholder="Diagnostic, Tune, Inspection...">
+
+        <label>Estimated Value ($)</label>
+        <input type="number" id="estimated_value" value="0">
+
+        <label>Next Follow-Up</label>
+        <input type="date" id="next_followup_date">
+
+        <label>Notes</label>
+        <textarea id="notes" rows="3" placeholder="Initial inquiry details..."></textarea>
+
+        <button type="submit">Log & Route Lead</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="margin:0;">Active Pipeline</h3>
+        <select id="filterStatus" style="width: auto; margin:0;" onchange="renderLeads()">
+          <option value="">All Stages</option>
+          <option value="NEW">NEW</option>
+          <option value="CONTACTED">CONTACTED</option>
+          <option value="WON">WON</option>
+          <option value="LOST">LOST</option>
+        </select>
       </div>
 
-      <div class="sidebar-footer">
-        <div class="operator-card">
-          <div class="operator-info">
-            <div class="operator-avatar">DV</div>
-            <div class="operator-meta">
-              <span class="operator-name">Dev — Founder</span>
-              <span class="operator-loc">Albuquerque, NM · (505)</span>
-            </div>
-          </div>
-          <span style="width:8px;height:8px;border-radius:50%;background:#10B981;" title="Local Storage Active"></span>
-        </div>
-      </div>
-    </aside>
-
-    <!-- Main Content Area -->
-    <div class="main-area">
-      <header class="topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" id="mobile-menu-toggle">☰</button>
-          <h1 class="page-title" id="topbar-page-title">Command Center Dashboard</h1>
-        </div>
-
-        <div class="global-search-wrap">
-          <span class="global-search-icon">🔍</span>
-          <input
-            type="text"
-            class="global-search-input"
-            id="global-search-input"
-            placeholder="Search leads by business, phone, category, or owner..."
-          />
-        </div>
-
-        <div class="topbar-actions">
-          <button class="btn btn-sm btn-indigo" id="top-btn-install-app" title="Install on Desktop or Phone">📲 Install App</button>
-          <button class="btn btn-sm" id="top-btn-add-lead">+ Add Lead</button>
-          <button class="btn btn-sm btn-emerald" id="top-btn-start-calling">⚡ Start Calling</button>
-        </div>
-      </header>
-
-      <main class="view-container" id="view-container"></main>
+      <table>
+        <thead>
+          <tr>
+            <th>Priority</th>
+            <th>Contact</th>
+            <th>Service / Value</th>
+            <th>Stage</th>
+            <th>Next Action</th>
+            <th>Quick Actions</th>
+          </tr>
+        </thead>
+        <tbody id="leadTableBody"></tbody>
+      </table>
     </div>
   </div>
 
-  <!-- Slide-Over Drawers & Modals -->
-  <div id="overlay-root"></div>
-
-  <!-- Toast Notifications -->
-  <div class="toast-container" id="toast-container"></div>
-
-  <script type="module" src="js/app.js?v=7"></script>
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js?v=7').catch(() => {});
-      });
+    function getStoredLeads() {
+      return JSON.parse(localStorage.getItem('leaddesk_records') || '[]');
     }
+
+    function saveStoredLeads(leads) {
+      localStorage.setItem('leaddesk_records', JSON.stringify(leads));
+    }
+
+    function checkDueFollowups(leads) {
+      const today = new Date().toISOString().split('T')[0];
+      const due = leads.filter(l => l.next_followup_date && l.next_followup_date <= today && l.status !== 'WON' && l.status !== 'LOST');
+      const alertBox = document.getElementById('dueAlert');
+      if (due.length > 0) {
+        alertBox.style.display = 'block';
+        document.getElementById('dueCount').textContent = due.length;
+      } else {
+        alertBox.style.display = 'none';
+      }
+    }
+
+    function renderLeads() {
+      const leads = getStoredLeads();
+      const filter = document.getElementById('filterStatus').value;
+      const tbody = document.getElementById('leadTableBody');
+      tbody.innerHTML = '';
+
+      const filtered = filter ? leads.filter(l => l.status === filter) : leads;
+
+      filtered.forEach(l => {
+        const smsMsg = encodeURIComponent(`Hi ${l.name}, following up regarding your ${l.service_requested || 'inquiry'}. How can we assist?`);
+        tbody.innerHTML += `
+          <tr>
+            <td><span class="badge badge-${l.priority}">${l.priority}</span></td>
+            <td>
+              <strong>${l.name}</strong><br>
+              <small style="color:var(--text-muted)">${l.phone || 'No phone'}</small>
+            </td>
+            <td>
+              ${l.service_requested || 'General'}<br>
+              <small style="color:var(--text-muted)">$${l.estimated_value}</small>
+            </td>
+            <td>
+              <select onchange="updateStage(${l.id}, this.value)" style="margin:0; padding:4px;">
+                <option value="NEW" ${l.status==='NEW'?'selected':''}>NEW</option>
+                <option value="CONTACTED" ${l.status==='CONTACTED'?'selected':''}>CONTACTED</option>
+                <option value="WON" ${l.status==='WON'?'selected':''}>WON</option>
+                <option value="LOST" ${l.status==='LOST'?'selected':''}>LOST</option>
+              </select>
+            </td>
+            <td><small>${l.next_followup_date || 'None'}</small></td>
+            <td class="actions">
+              ${l.phone ? `<a href="tel:${l.phone}">📞 Call</a>` : ''}
+              ${l.phone ? `<a href="sms:${l.phone}?body=${smsMsg}">💬 SMS</a>` : ''}
+              ${l.email ? `<a href="mailto:${l.email}">✉️ Email</a>` : ''}
+            </td>
+          </tr>
+        `;
+      });
+
+      checkDueFollowups(leads);
+    }
+
+    function updateStage(id, newStatus) {
+      const leads = getStoredLeads();
+      const target = leads.find(l => l.id === id);
+      if (target) {
+        target.status = newStatus;
+        saveStoredLeads(leads);
+        renderLeads();
+      }
+    }
+
+    document.getElementById('leadForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = Number(document.getElementById('estimated_value').value) || 0;
+      const leads = getStoredLeads();
+      const newLead = {
+        id: Date.now(),
+        name: document.getElementById('name').value,
+        phone: document.getElementById('phone').value,
+        email: document.getElementById('email').value,
+        service_requested: document.getElementById('service_requested').value,
+        estimated_value: val,
+        next_followup_date: document.getElementById('next_followup_date').value,
+        notes: document.getElementById('notes').value,
+        status: 'NEW',
+        priority: val >= 500 ? 'HIGH' : 'MEDIUM',
+        created_at: new Date().toISOString()
+      };
+      leads.unshift(newLead);
+      saveStoredLeads(leads);
+      e.target.reset();
+      renderLeads();
+    });
+
+    renderLeads();
   </script>
 </body>
 </html>
